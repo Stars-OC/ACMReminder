@@ -72,6 +72,7 @@ public class CodeForcesThread {
                 if (utils.time.isMidnight(dateTime)){
                     codeForces.updateContests();
                     codeForces.updateRank();
+                    codeForces.updateUserRating();
                     logger.info("更新比赛信息/排名信息成功");
                 }
             }

@@ -34,7 +34,7 @@ public class CodeForces {
     private static final Config config = Config.INSTANCE;
 
     private static final String CONTEST_LIST = "https://codeforces.com/api/contest.list?gym=false";
-    private static final String USER_RATING = "https://codeforces.com/api/user.rating?handles=";
+    private static final String USER_RATING = "https://codeforces.com/api/user.rating?handle=";
 
     /**
      * 更新竞赛列表信息。该方法会从指定接口获取竞赛列表的JSON数据，然后将这些数据解析成CFRespond<CFContests>对象。
@@ -138,8 +138,11 @@ public class CodeForces {
      * @return 成功添加用户的提示信息，如果添加失败则返回null
      */
     public String add(String person) {
+        if (utils.redis.getHash(RedisUtils.REDIS_CODEFORCES_USER_INFO,person) != null) return "用户" + person + " 已存在";
         // 获取指定用户的评分信息
         CFUserRating userRating = getUserRating(person);
+
+        if (userRating == null) return "用户" + person + " 不存在";
 
         UserInfo userInfo = new UserInfo();
         userInfo.setUsername(person);
@@ -150,8 +153,10 @@ public class CodeForces {
         // 将用户评分信息存储到Redis中
         utils.redis.setObjectHash(RedisUtils.REDIS_CODEFORCES_USER_INFO, person, userInfo);
 
+        // 更新排名数据
+        updateRank();
         // 返回添加成功的提示信息，包含用户的新评分和上次更新时间
-        return "添加 用户" + person + " 成功，当前分数为 (" + userRating.getNewRating() + ")，上次更新时间 " + userRating.getRatingUpdateTimeSeconds();
+        return "添加 用户" + person + " 成功，当前分数为 (" + userRating.getNewRating() + ")，上次更新时间 " + utils.time.timestampToString(userRating.getRatingUpdateTimeSeconds());
     }
 
 
@@ -177,6 +182,49 @@ public class CodeForces {
         return result.get(result.size() - 1);
     }
 
+    /**
+     * 获取用户列表。
+     * 该方法从Redis缓存中获取所有用户的ID。
+     *
+     * @return Set<String> 返回一个包含所有用户ID的集合。
+     */
+    public Set<String> getUserList(){
+        // 从Redis连接池获取JedisPooled实例
+        JedisPooled redis = utils.redis.redis();
+        // 从Redis获取用户信息哈希表的键（用户ID）
+        Set<String> set = redis.hgetAll(RedisUtils.REDIS_CODEFORCES_USER_INFO).keySet();
+        // 关闭Redis连接
+        redis.close();
+        return set;
+    }
+
+    /**
+     * 更新用户评分信息。
+     * 该方法遍历用户列表，获取每个用户的评分信息，并将这些信息更新到Redis中。
+     * 这个过程中，会忽略那些没有评分信息的用户。
+     */
+    public void updateUserRating(){
+        // 获取用户列表
+        Set<String> userList = getUserList();
+        // 遍历用户列表
+        for (String username : userList){
+            // 尝试获取用户的评分信息
+            CFUserRating userRating = getUserRating(username);
+            // 如果用户没有评分信息，则跳过该用户
+            if (userRating == null) continue;
+
+            // 准备用户信息，包括用户名、新的评分、评分更新时间以及最后一次比赛名称
+            UserInfo userInfo = new UserInfo();
+            userInfo.setUsername(username);
+            userInfo.setRating(userRating.getNewRating());
+            userInfo.setUpdateTime(userRating.getRatingUpdateTimeSeconds());
+            userInfo.setLastContestName(userRating.getContestName());
+
+            // 将用户信息更新到Redis中
+            utils.redis.setObjectHash(RedisUtils.REDIS_CODEFORCES_USER_INFO, username, userInfo);
+        }
+    }
+
 
 
     /**
@@ -188,6 +236,8 @@ public class CodeForces {
     public String remove(String person) {
         // 从Redis中删除指定用户的个人信息
         utils.redis.delHash(RedisUtils.REDIS_CODEFORCES_USER_INFO,person);
+        // 更新排名数据
+        updateRank();
         return "删除 用户" + person + " 成功";
     }
 
@@ -253,5 +303,19 @@ public class CodeForces {
             groupList.add(group); // 将获取到的群组实例添加到群组列表中
         }
         utils.debug("init end");
+    }
+
+    public String getUserStatus(String person) {
+        return null;
+    }
+
+    public String getUserInfo(String person) {
+        UserInfo userInfo = utils.redis.getObjectHash(RedisUtils.REDIS_CODEFORCES_USER_INFO, person, UserInfo.class);
+        if (userInfo == null) {
+            return "暂无用户 " + person + " 的数据";
+        }
+
+        return "用户 " + userInfo.getUsername() + " (" + userInfo.getRating() + ") 当前位于本群No." + userInfo.getRank() + " 位" +
+                "\n上次比赛为 " + userInfo.getLastContestName() + "，更新时间：" + utils.time.timestampToString(userInfo.getUpdateTime());
     }
 }

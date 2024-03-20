@@ -4,8 +4,11 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.PlainText;
 import org.jetbrains.annotations.NotNull;
+import xyz.starsoc.ACMReminder;
 import xyz.starsoc.acm.core.CodeForces;
 import xyz.starsoc.file.Config;
 import xyz.starsoc.file.Message;
@@ -52,6 +55,18 @@ public class GroupMsg extends SimpleListenerHost {
                 return;
             case "contests":
                 group.sendMessage(codeForces.getContests());
+                return;
+            case "update contest":
+                codeForces.updateContests();
+                group.sendMessage("更新竞赛信息成功\n" + codeForces.getContests());
+                return;
+            case "update user":
+                codeForces.updateUserRating();
+                group.sendMessage("更新竞赛信息成功\n" + codeForces.updateRank());
+                return;
+            case "reload":
+                ACMReminder.INSTANCE.reload();
+                return;
         }
 
         if (command.length == 2){
@@ -62,10 +77,16 @@ public class GroupMsg extends SimpleListenerHost {
         switch (command[1]){
             case "add":
                 group.sendMessage(codeForces.add(command[2]));
-                break;
+                return;
             case "remove":
                 group.sendMessage(codeForces.remove(command[2]));
-                break;
+                return;
+            case "info":
+                group.sendMessage(codeForces.getUserInfo(command[2]));
+                return;
+            case "status":
+                group.sendMessage(codeForces.getUserStatus(command[2]));
+                return;
         }
 
 
