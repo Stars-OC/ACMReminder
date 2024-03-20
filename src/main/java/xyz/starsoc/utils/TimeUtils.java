@@ -14,6 +14,7 @@ public class TimeUtils {
      * @return 格式化后的日期时间字符串，格式为"yyyy-MM-dd HH:mm:ss"。
      */
     public String timestampToString(long time) {
+        time *= 1000;
         // 将时间戳转换为Date对象
         Date date = new Date(time);
         // 创建SimpleDateFormat对象，并指定日期时间格式

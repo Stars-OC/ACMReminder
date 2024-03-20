@@ -4,8 +4,10 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
+import net.mamoe.mirai.message.data.MessageOrigin;
 import net.mamoe.mirai.message.data.PlainText;
 import org.jetbrains.annotations.NotNull;
 import xyz.starsoc.ACMReminder;
@@ -56,13 +58,13 @@ public class GroupMsg extends SimpleListenerHost {
             case "contests":
                 group.sendMessage(codeForces.getContests());
                 return;
-            case "update contest":
-                codeForces.updateContests();
-                group.sendMessage("更新竞赛信息成功\n" + codeForces.getContests());
-                return;
-            case "update user":
-                codeForces.updateUserRating();
-                group.sendMessage("更新竞赛信息成功\n" + codeForces.updateRank());
+            case "user":
+                String msg = "[";
+                for (String user : codeForces.getUserList()) {
+                    msg += user + " ";
+                }
+                msg += "]";
+                group.sendMessage(msg);
                 return;
             case "reload":
                 ACMReminder.INSTANCE.reload();
@@ -84,11 +86,23 @@ public class GroupMsg extends SimpleListenerHost {
             case "info":
                 group.sendMessage(codeForces.getUserInfo(command[2]));
                 return;
+            case "update":
+                group.sendMessage("正在更新信息，请稍候");
+                switch (command[2]){
+                    case "contest":
+                        codeForces.updateContests();
+                        group.sendMessage("--- 更新竞赛信息成功 ---\n" + codeForces.getContests());
+                        break;
+                    case "user":
+                        codeForces.updateUserRating();
+                        group.sendMessage("--- 更新用户信息成功 ---\n" + codeForces.updateRank());
+                        break;
+                }
+                return;
             case "status":
                 group.sendMessage(codeForces.getUserStatus(command[2]));
                 return;
         }
-
 
     }
 }

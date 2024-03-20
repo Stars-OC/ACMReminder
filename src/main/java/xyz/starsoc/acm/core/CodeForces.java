@@ -89,10 +89,10 @@ public class CodeForces {
             ++place;
         }
         // 根据用户rating进行排序
-        Arrays.sort(userInfos, Comparator.comparingInt(UserInfo::getRating));
+        Arrays.sort(userInfos, (o1, o2) -> o2.getRating() - o1.getRating());
         // 更新用户排名
         for (int i = 0; i < userInfos.length; i++) {
-            userInfos[i].setRank(i);
+            userInfos[i].setRank(i+1);
         }
         // 准备更新后的用户信息Map，以供Redis存储使用
         HashMap<String, String> hashMap = new HashMap<>();
@@ -126,7 +126,7 @@ public class CodeForces {
         StringBuilder message = new StringBuilder("---- CodeForces Contests ----\n");
         // 遍历所有比赛的开始时间，并将比赛名称、类型和开始时间格式化后添加到消息中
         for (CFContests contest : CONTESTS_TIME.values()){
-            message.append(contest.getName()).append("(").append(contest.getType()).append(") 将在").append(utils.time.timeToFormat(contest.getStartTimeSeconds())).append("后开始\n");
+            message.append(contest.getName()).append("(").append(contest.getType()).append(") 将在").append(utils.time.timeToFormat(contest.getStartTimeSeconds() - System.currentTimeMillis()/1000)).append("后开始\n");
         }
         // 返回格式化后的内容
         return message.toString();
@@ -278,7 +278,7 @@ public class CodeForces {
             // 发送提醒信息至所有群组
             for (Group group : groupList){
                 // 构造并发送包含竞赛详情的提醒信息
-                group.sendMessage(new PlainText("CodeForces比赛 " + contests.getName() + "("+ contests.getType() +") 将在 " + utils.time.timeToFormat(contests.getStartTimeSeconds()) + " 开始"));
+                group.sendMessage(new PlainText("CodeForces比赛 " + contests.getName() + "("+ contests.getType() +") 将在 " + utils.time.timeToFormat(contests.getStartTimeSeconds() - - System.currentTimeMillis()/1000) + " 开始"));
             }
         }
     }
