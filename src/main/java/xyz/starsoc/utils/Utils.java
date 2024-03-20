@@ -15,6 +15,8 @@ public class Utils {
 
     public  RedisUtils redis = RedisUtils.INSTANCE;
 
+    public TimeUtils time = TimeUtils.INSTANCE;
+
     public void debug(String msg){
         if (Config.INSTANCE.getDebug()) logger.info(msg);
     }

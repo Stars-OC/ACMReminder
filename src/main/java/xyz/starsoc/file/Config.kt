@@ -13,4 +13,6 @@ object Config : AutoSavePluginConfig("config") {
     val enableGroup : Set<Long> by value()
     val proxyHost by value("127.0.0.1")
     val proxyPort by value(10809)
+
+    val beforeTime by value(30)
 }

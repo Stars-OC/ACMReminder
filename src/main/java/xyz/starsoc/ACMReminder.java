@@ -17,6 +17,5 @@ public final class ACMReminder extends JavaPlugin{
     @Override
     public void onEnable(){
         getLogger().info("ACMReminder 加载成功!");
-        CodeForces.INSTANCE.updateContests();
     }
 }

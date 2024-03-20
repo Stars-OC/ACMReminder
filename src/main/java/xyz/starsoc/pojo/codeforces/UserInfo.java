@@ -12,6 +12,8 @@ public class UserInfo implements Serializable {
 
     private String lastContestName;
 
+    private Integer rank;
+
     public String getUsername() {
         return username;
     }
@@ -42,5 +44,13 @@ public class UserInfo implements Serializable {
 
     public void setLastContestName(String lastContestName) {
         this.lastContestName = lastContestName;
+    }
+
+    public Integer getRank() {
+        return rank;
+    }
+
+    public void setRank(Integer rank) {
+        this.rank = rank;
     }
 }

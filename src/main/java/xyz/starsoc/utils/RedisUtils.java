@@ -20,7 +20,7 @@ public class RedisUtils {
 
     public static final String REDIS_CODEFORCES_USER_STATUS = REDIS_CODEFORCES_USER + "status";
 
-    private JedisPooled redis(){
+    public JedisPooled redis(){
 
         JedisPooled pool = null;
         String username = redis.getUsername();
