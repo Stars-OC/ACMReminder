@@ -101,7 +101,7 @@ public class CodeForces {
         // 构建返回的排名信息字符串，并更新Redis中的用户信息
         for (UserInfo userInfo : userInfos) {
            hashMap.put(userInfo.getUsername(),utils.gson.toJson(userInfo));
-           message.append(userInfo.getUsername()).append(" (").append(userInfo.getRating()).append(") 排名： ").append(userInfo.getRank()).append("\n");
+           message.append(userInfo.getUsername()).append(" (").append(userInfo.getRating()).append(")  排名： ").append(userInfo.getRank()).append("\n");
         }
         // 更新Redis中的用户信息，并关闭Redis连接
         redis.hset(key,hashMap);
@@ -156,7 +156,7 @@ public class CodeForces {
         // 更新排名数据
         updateRank();
         // 返回添加成功的提示信息，包含用户的新评分和上次更新时间
-        return "添加 用户" + person + " 成功，当前分数为 (" + userRating.getNewRating() + ")，上次更新时间 " + utils.time.timestampToString(userRating.getRatingUpdateTimeSeconds());
+        return "添加 用户 " + person + " 成功，当前分数为 (" + userRating.getNewRating() + ")，上次更新时间 " + utils.time.timestampToString(userRating.getRatingUpdateTimeSeconds());
     }
 
 
@@ -256,11 +256,20 @@ public class CodeForces {
             return "当前没有用户";
         }
         StringBuilder message = new StringBuilder("---- CodeForces Rank ----\n"); // 初始化用于构建排名信息的StringBuilder
+        int place = 0;
+        UserInfo[] userInfos = new UserInfo[hashMap.size()];
+        // 将JSON字符串转换为UserInfo对象，并填充数组
+        for (String json : hashMap.values()) {
+            UserInfo userInfo = utils.gson.fromJson(json, UserInfo.class);
+            userInfos[place] = userInfo;
+            ++place;
+        }
+        // 根据用户rating进行排序
+        Arrays.sort(userInfos, (o1, o2) -> o2.getRating() - o1.getRating());
         // 遍历用户信息，将用户信息转换为排名信息并添加到message中
-        hashMap.forEach((k,v)->{
-            UserInfo userInfo = utils.gson.fromJson(v, UserInfo.class); // 从JSON字符串转换为UserInfo对象
-            message.append(userInfo.getUsername()).append(" (").append(userInfo.getRating()).append(") 排名： ").append(userInfo.getRank()).append("\n");
-        });
+        for (UserInfo userInfo : userInfos) {
+            message.append(userInfo.getUsername()).append(" (").append(userInfo.getRating()).append(")  排名： ").append(userInfo.getRank()).append("\n");
+        }
         return message.toString(); // 返回构建完成的排名信息字符串
     }
 

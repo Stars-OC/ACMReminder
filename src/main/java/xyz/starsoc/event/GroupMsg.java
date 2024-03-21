@@ -91,11 +91,11 @@ public class GroupMsg extends SimpleListenerHost {
                 switch (command[2]){
                     case "contest":
                         codeForces.updateContests();
-                        group.sendMessage("--- 更新竞赛信息成功 ---\n" + codeForces.getContests());
+                        group.sendMessage("更新竞赛信息成功 \n" + codeForces.getContests());
                         break;
                     case "user":
                         codeForces.updateUserRating();
-                        group.sendMessage("--- 更新用户信息成功 ---\n" + codeForces.updateRank());
+                        group.sendMessage("更新用户信息成功 \n" + codeForces.updateRank());
                         break;
                 }
                 return;
