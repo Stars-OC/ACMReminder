@@ -10,6 +10,7 @@ import xyz.starsoc.utils.Utils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,8 @@ public class CodeForcesThread {
 
         Runnable runnable = () -> {
 
+            utils.debug("进程存活....");
+
             // 初始化逻辑，确保只初始化一次
             if (init){
                 codeForces.init();
@@ -69,14 +72,13 @@ public class CodeForcesThread {
 
             // 每分钟执行一次的逻辑，包括在整点时更新比赛信息和排名
             if (times%60 == 0){
-                if (utils.time.isMidnight(dateTime)){
+                // 判断是不是凌晨 如果是就更新比赛信息与排名信息
+                if (utils.time.isMidnight(dateTime*1000)){
                     codeForces.updateContests();
-                    codeForces.updateRank();
-                    codeForces.updateUserRating();
-                    logger.info("更新比赛信息/排名信息成功");
+                    codeForces.updateAllUserRating();
+                    logger.info("更新比赛信息与排名信息成功");
                 }
             }
-
 
 
         };

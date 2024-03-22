@@ -72,11 +72,11 @@ public class CodeForces {
      *
      * @return 包含所有用户排名信息的字符串，格式为多行文本。
      */
-    public String updateRank() {
+    public String updateRank(long groupId) {
         // 从Redis获取连接
         JedisPooled redis = utils.redis.redis();
         // 定义CodeForces用户信息的Redis键名
-        String key = RedisUtils.REDIS_CODEFORCES_USER_INFO;
+        String key = RedisUtils.REDIS_CODEFORCES_USER_INFO + groupId;
         // 从Redis获取所有用户的信息（以JSON格式存储）
         Map<String, String> map = redis.hgetAll(key);
         int place = 0;
@@ -134,11 +134,14 @@ public class CodeForces {
 
     /**
      * 添加用户到Codeforces用户评分数据库
-     * @param person Codeforces用户的用户名
+     *
+     * @param groupId
+     * @param person  Codeforces用户的用户名
      * @return 成功添加用户的提示信息，如果添加失败则返回null
      */
-    public String add(String person) {
-        if (utils.redis.getHash(RedisUtils.REDIS_CODEFORCES_USER_INFO,person) != null) return "用户" + person + " 已存在";
+    public String add(long groupId, String person) {
+        String key = RedisUtils.REDIS_CODEFORCES_USER_INFO + groupId;
+        if (utils.redis.getHash(key,person) != null) return "用户" + person + " 已存在";
         // 获取指定用户的评分信息
         CFUserRating userRating = getUserRating(person);
 
@@ -151,10 +154,10 @@ public class CodeForces {
         userInfo.setLastContestName(userRating.getContestName());
 
         // 将用户评分信息存储到Redis中
-        utils.redis.setObjectHash(RedisUtils.REDIS_CODEFORCES_USER_INFO, person, userInfo);
+        utils.redis.setObjectHash(key, person, userInfo);
 
         // 更新排名数据
-        updateRank();
+        updateRank(groupId);
         // 返回添加成功的提示信息，包含用户的新评分和上次更新时间
         return "添加 用户 " + person + " 成功，当前分数为 (" + userRating.getNewRating() + ")，上次更新时间 " + utils.time.timestampToString(userRating.getRatingUpdateTimeSeconds());
     }
@@ -188,11 +191,12 @@ public class CodeForces {
      *
      * @return Set<String> 返回一个包含所有用户ID的集合。
      */
-    public Set<String> getUserList(){
+    public Set<String> getUserList(long groupId){
         // 从Redis连接池获取JedisPooled实例
         JedisPooled redis = utils.redis.redis();
         // 从Redis获取用户信息哈希表的键（用户ID）
-        Set<String> set = redis.hgetAll(RedisUtils.REDIS_CODEFORCES_USER_INFO).keySet();
+        String key = RedisUtils.REDIS_CODEFORCES_USER_INFO + groupId;
+        Set<String> set = redis.hgetAll(key).keySet();
         // 关闭Redis连接
         redis.close();
         return set;
@@ -203,9 +207,10 @@ public class CodeForces {
      * 该方法遍历用户列表，获取每个用户的评分信息，并将这些信息更新到Redis中。
      * 这个过程中，会忽略那些没有评分信息的用户。
      */
-    public void updateUserRating(){
+    public void updateUserRating(long groupId){
         // 获取用户列表
-        Set<String> userList = getUserList();
+        Set<String> userList = getUserList(groupId);
+        String key = RedisUtils.REDIS_CODEFORCES_USER_INFO + groupId;
         // 遍历用户列表
         for (String username : userList){
             // 尝试获取用户的评分信息
@@ -221,7 +226,20 @@ public class CodeForces {
             userInfo.setLastContestName(userRating.getContestName());
 
             // 将用户信息更新到Redis中
-            utils.redis.setObjectHash(RedisUtils.REDIS_CODEFORCES_USER_INFO, username, userInfo);
+
+            utils.redis.setObjectHash(key, username, userInfo);
+        }
+    }
+
+    /**
+     * 更新所有用户评分。
+     * 此方法遍历配置中启用的用户组，并对每个用户组调用更新用户评分的方法。
+     * 注意：此方法不接受参数，也不返回任何值。
+     */
+    public void updateAllUserRating(){
+        // 遍历配置中启用的用户组，对每个组更新用户评分
+        for (Long groupId : config.getEnableGroup()) {
+            updateUserRating(groupId);
         }
     }
 
@@ -230,14 +248,16 @@ public class CodeForces {
     /**
      * 从Redis中删除指定用户的个人信息。
      *
-     * @param person 要删除的用户名称。
+     * @param groupId
+     * @param person  要删除的用户名称。
      * @return 返回一个字符串，表示删除操作的结果信息。
      */
-    public String remove(String person) {
+    public String remove(long groupId, String person) {
         // 从Redis中删除指定用户的个人信息
-        utils.redis.delHash(RedisUtils.REDIS_CODEFORCES_USER_INFO,person);
+        String key = RedisUtils.REDIS_CODEFORCES_USER_INFO + groupId;
+        utils.redis.delHash(key,person);
         // 更新排名数据
-        updateRank();
+        updateRank(groupId);
         return "删除 用户" + person + " 成功";
     }
 
@@ -249,9 +269,10 @@ public class CodeForces {
      *
      * @return 返回一个包含所有用户排名信息的字符串，如果没有用户，则返回"当前没有用户"。
      */
-    public String getRank() {
+    public String getRank(long groupId) {
         JedisPooled redis = utils.redis.redis(); // 获取Redis客户端
-        Map<String, String> hashMap = redis.hgetAll(RedisUtils.REDIS_CODEFORCES_USER_INFO); // 从Redis获取所有用户的信息
+        String key = RedisUtils.REDIS_CODEFORCES_USER_INFO + groupId;
+        Map<String, String> hashMap = redis.hgetAll(key); // 从Redis获取所有用户的信息
         if (hashMap.size() == 0) {
             return "当前没有用户";
         }
@@ -314,12 +335,13 @@ public class CodeForces {
         utils.debug("init end");
     }
 
-    public String getUserStatus(String person) {
+    public String getUserStatus(long groupId, String person) {
         return null;
     }
 
-    public String getUserInfo(String person) {
-        UserInfo userInfo = utils.redis.getObjectHash(RedisUtils.REDIS_CODEFORCES_USER_INFO, person, UserInfo.class);
+    public String getUserInfo(long groupId, String person) {
+        String info = RedisUtils.REDIS_CODEFORCES_USER_INFO + groupId;
+        UserInfo userInfo = utils.redis.getObjectHash(info, person, UserInfo.class);
         if (userInfo == null) {
             return "暂无用户 " + person + " 的数据";
         }

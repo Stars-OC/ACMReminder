@@ -71,10 +71,10 @@ public class TimeUtils {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
-        int millisecond = calendar.get(Calendar.MILLISECOND);
 
+//        System.out.println("hour:" + hour + " minute:" + minute + " second:" + second + " millisecond:" + millisecond);
         // 检查是否为凌晨（00:00:00.000）
-        return (hour == 0 && minute == 0 && second == 0 && millisecond == 0);
+        return (hour == 0 && minute == 0 && second == 0);
     }
 
 }

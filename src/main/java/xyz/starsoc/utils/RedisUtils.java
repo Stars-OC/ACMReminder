@@ -14,11 +14,8 @@ public class RedisUtils {
 
     public static final String REDIS_CODEFORCES_USER = REDIS_CODEFORCES + "user-";
 
-    public static final String REDIS_CODEFORCES_USER_INFO = REDIS_CODEFORCES_USER + "info";
+    public static final String REDIS_CODEFORCES_USER_INFO = REDIS_CODEFORCES_USER + "info:";
 
-    public static final String REDIS_CODEFORCES_USER_RATING = REDIS_CODEFORCES_USER + "rating";
-
-    public static final String REDIS_CODEFORCES_USER_STATUS = REDIS_CODEFORCES_USER + "status";
 
     public JedisPooled redis(){
 
