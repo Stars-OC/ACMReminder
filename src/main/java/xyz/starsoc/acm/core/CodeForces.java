@@ -349,4 +349,34 @@ public class CodeForces {
         return "用户 " + userInfo.getUsername() + " (" + userInfo.getRating() + ") 当前位于本群No." + userInfo.getRank() + " 位" +
                 "\n上次比赛为 " + userInfo.getLastContestName() + "，更新时间：" + utils.time.timestampToString(userInfo.getUpdateTime());
     }
+
+    /**
+     * 结束指定时间的比赛并进行相关更新。
+     * 该方法首先判断比赛是否已经结束，如果是，则移除该比赛，更新比赛列表，并重新计算所有参赛用户的评级。
+     *
+     * @param contestTime 比赛的开始时间戳，单位为秒。
+     * @return 如果成功结束比赛并进行了相关更新，则返回true；如果比赛尚未结束，则返回false。
+     */
+    public boolean endContest(long contestTime) {
+        // 根据比赛时间获取比赛对象
+        CFContests contests = CONTESTS_TIME.get(contestTime);
+        // 获取当前时间戳，单位为秒
+        long nowTime = System.currentTimeMillis() / 1000;
+        // 计算比赛的结束时间戳，单位为秒
+        long endTime = contests.getDurationSeconds() + contestTime;
+        if (nowTime > endTime){
+            // 如果当前时间大于比赛结束时间，则认为比赛已经结束，进行后续处理
+            // 移除指定时间的比赛
+            CONTESTS_TIME.remove(contestTime);
+            // 更新比赛列表
+            updateContests();
+            // 更新所有用户的评级
+            updateAllUserRating();
+            logger.info("比赛 " + contests.getName() + " 已结束");
+            return true;
+        }
+        // 如果当前时间未超过比赛结束时间，则不进行处理，返回false
+        return false;
+    }
+
 }

@@ -45,6 +45,8 @@ public class CodeForcesThread {
 
             utils.debug("进程存活....");
 
+            // 判断时间进行
+            ++times;
             // 初始化逻辑，确保只初始化一次
             if (init){
                 codeForces.init();
@@ -66,8 +68,19 @@ public class CodeForcesThread {
 
             // 计算检查时间，查看是否有比赛即将开始
             long checkTime = dateTime + config.getBeforeTime() * 60L;
-            if (CONTESTS_TIME.containsKey(checkTime)){
-                codeForces.sendContestWillBegin(checkTime);
+
+            for (long contestTime : CONTESTS_TIME.keySet()){
+                // 其实有另一种实现方式就是进行分钟化计算
+                if (contestTime <= checkTime){
+                    codeForces.sendContestWillBegin(contestTime);
+                    utils.debug("发送比赛即将开始通知成功");
+                    break;
+                }
+
+                if (contestTime >= dateTime && codeForces.endContest(contestTime)){
+                    utils.debug("结束比赛成功");
+                    break;
+                }
             }
 
             // 每分钟执行一次的逻辑，包括在整点时更新比赛信息和排名
