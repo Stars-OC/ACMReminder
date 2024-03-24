@@ -43,54 +43,58 @@ public class CodeForcesThread {
 
         Runnable runnable = () -> {
 
-            utils.debug("进程存活....");
+            try {
+                utils.debug("进程存活....");
 
-            // 判断时间进行
-            ++times;
-            // 初始化逻辑，确保只初始化一次
-            if (init){
-                codeForces.init();
-                init = false;
-            }
-
-            // 获取当前时间并进行格式化处理
-            Date date = new Date();
-            long dateTime = date.getTime() / 1000 ;
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-            String time = simpleDateFormat.format(date);
-
-            // 时间矫正逻辑，确保时间准确
-            if (timeVerify && "00".equals(time.split(":")[1])){
-                timeVerify = false;
-                times = -1;
-                logger.info("矫正时间成功");
-            }
-
-            // 计算检查时间，查看是否有比赛即将开始
-            long checkTime = dateTime + config.getBeforeTime() * 60L;
-
-            for (long contestTime : CONTESTS_TIME.keySet()){
-                // 其实有另一种实现方式就是进行分钟化计算
-                if (contestTime <= checkTime){
-                    codeForces.sendContestWillBegin(contestTime);
-                    utils.debug("发送比赛即将开始通知成功");
-                    break;
+                // 初始化逻辑，确保只初始化一次
+                if (init){
+                    codeForces.init();
+                    init = false;
                 }
 
-                if (contestTime >= dateTime && codeForces.endContest(contestTime)){
-                    utils.debug("结束比赛成功");
-                    break;
-                }
-            }
+                // 获取当前时间并进行格式化处理
+                Date date = new Date();
+                long dateTime = date.getTime() / 1000 ;
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                String time = simpleDateFormat.format(date);
 
-            // 每分钟执行一次的逻辑，包括在整点时更新比赛信息和排名
-            if (times%60 == 0){
-                // 判断是不是凌晨 如果是就更新比赛信息与排名信息
-                if (utils.time.isMidnight(dateTime*1000)){
-                    codeForces.updateContests();
-                    codeForces.updateAllUserRating();
-                    logger.info("更新比赛信息与排名信息成功");
+                // 时间矫正逻辑，确保时间准确
+                if (timeVerify && "00".equals(time.split(":")[1])){
+                    timeVerify = false;
+                    times = -1;
+                    logger.info("矫正时间成功");
                 }
+
+                // 判断时间进行
+                ++times;
+                // 计算检查时间，查看是否有比赛即将开始
+                long checkTime = dateTime + config.getBeforeTime() * 60L;
+
+                for (long contestTime : CONTESTS_TIME.keySet()){
+                    // 其实有另一种实现方式就是进行分钟化计算
+                    if (contestTime <= checkTime){
+                        codeForces.sendContestWillBegin(contestTime);
+                        utils.debug("发送比赛即将开始通知成功");
+                        break;
+                    }
+
+                    if (contestTime >= dateTime && codeForces.endContest(contestTime)){
+                        utils.debug("结束比赛成功");
+                        break;
+                    }
+                }
+
+                // 每小时执行一次的逻辑，包括在整点时更新比赛信息和排名
+                if (times%60 == 0){
+                    // 判断是不是凌晨 如果是就更新比赛信息与排名信息
+                    if (utils.time.isMidnight(dateTime*1000)){
+                        codeForces.updateContests();
+                        codeForces.updateAllUserRating();
+                        logger.info("更新比赛信息与排名信息成功");
+                    }
+                }
+            }catch (Exception e){
+                logger.info("进程异常 {}", e.getMessage());
             }
 
 

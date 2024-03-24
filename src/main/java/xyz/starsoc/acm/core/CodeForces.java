@@ -332,6 +332,11 @@ public class CodeForces {
             Group group = bot.getGroupOrFail(groupId);
             groupList.add(group); // 将获取到的群组实例添加到群组列表中
         }
+
+        // 更新竞赛信息
+        updateContests();
+        updateAllUserRating();
+
         utils.debug("init end");
     }
 
