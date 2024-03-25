@@ -35,8 +35,6 @@ public final class ACMReminder extends JavaPlugin{
         reload();
         // 注册全局事件监听器，用于处理群消息
         GlobalEventChannel.INSTANCE.registerListenerHost(new GroupMsg());
-        // 启动CodeForces论坛数据更新线程
-        new CodeForcesThread().run();
         // 记录插件加载成功的日志
         getLogger().info("ACMReminder 加载成功!");
     }

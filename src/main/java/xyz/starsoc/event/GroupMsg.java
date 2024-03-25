@@ -3,11 +3,13 @@ package xyz.starsoc.event;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.SimpleListenerHost;
+import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.PlainText;
 import org.jetbrains.annotations.NotNull;
 import xyz.starsoc.ACMReminder;
 import xyz.starsoc.acm.core.CodeForces;
+import xyz.starsoc.acm.thread.CodeForcesThread;
 import xyz.starsoc.file.Config;
 import xyz.starsoc.file.Message;
 
@@ -100,5 +102,13 @@ public class GroupMsg extends SimpleListenerHost {
                 return;
         }
 
+    }
+
+    @EventHandler
+    public void onBotOnline(@NotNull BotOnlineEvent event) throws Exception {
+        if (event.getBot().isOnline()){
+            // 启动CodeForces论坛数据更新线程
+            new CodeForcesThread().run();
+        }
     }
 }
