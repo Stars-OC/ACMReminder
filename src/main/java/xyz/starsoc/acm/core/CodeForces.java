@@ -240,6 +240,7 @@ public class CodeForces {
         // 遍历配置中启用的用户组，对每个组更新用户评分
         for (Long groupId : config.getEnableGroup()) {
             updateUserRating(groupId);
+            updateRank(groupId);
         }
     }
 
