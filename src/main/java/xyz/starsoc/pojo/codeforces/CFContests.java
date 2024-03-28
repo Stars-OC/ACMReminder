@@ -22,6 +22,8 @@ public class CFContests implements Serializable {
 
   private Long startTimeSeconds;
 
+  private Boolean started = false;
+
   public String getPhase() {
     return this.phase;
   }
@@ -84,5 +86,13 @@ public class CFContests implements Serializable {
 
   public void setStartTimeSeconds(Long startTimeSeconds) {
     this.startTimeSeconds = startTimeSeconds;
+  }
+
+  public Boolean getStarted() {
+    return started;
+  }
+
+  public void setStarted(Boolean started) {
+    this.started = started;
   }
 }

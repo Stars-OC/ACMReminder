@@ -305,11 +305,13 @@ public class CodeForces {
     public void sendContestWillBegin(long checkTime) {
         // 根据检查时间获取对应的竞赛信息
         CFContests contests = CONTESTS_TIME.get(checkTime);
-        if (contests != null) {
+
+        if (contests != null && !contests.getStarted()) {
+            contests.setStarted(true);
             // 发送提醒信息至所有群组
             for (Group group : groupList){
                 // 构造并发送包含竞赛详情的提醒信息
-                group.sendMessage(new PlainText("CodeForces比赛 " + contests.getName() + "("+ contests.getType() +") 将在 " + utils.time.timeToFormat(contests.getStartTimeSeconds() - - System.currentTimeMillis()/1000) + " 开始"));
+                group.sendMessage(new PlainText("CodeForces比赛 " + contests.getName() + "("+ contests.getType() +") 将在 " + utils.time.timeToFormat(contests.getStartTimeSeconds() - System.currentTimeMillis()/1000) + " 开始"));
             }
         }
     }
