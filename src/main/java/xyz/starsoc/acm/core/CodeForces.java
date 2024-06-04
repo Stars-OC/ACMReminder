@@ -308,6 +308,7 @@ public class CodeForces {
 
         if (contests != null && !contests.getStarted()) {
             contests.setStarted(true);
+            utils.debug("发送比赛即将开始通知成功");
             // 发送提醒信息至所有群组
             for (Group group : groupList){
                 // 构造并发送包含竞赛详情的提醒信息

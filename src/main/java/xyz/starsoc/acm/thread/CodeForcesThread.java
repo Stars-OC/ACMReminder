@@ -71,17 +71,19 @@ public class CodeForcesThread {
                 long checkTime = dateTime + config.getBeforeTime() * 60L;
 
                 for (long contestTime : CONTESTS_TIME.keySet()){
-                    // 其实有另一种实现方式就是进行分钟化计算
-                    if (contestTime <= checkTime){
-                        codeForces.sendContestWillBegin(contestTime);
-                        utils.debug("发送比赛即将开始通知成功");
-                        break;
-                    }
 
+                    // 这里要确保时间的不冲突 或者可以使用if else
                     if (contestTime >= dateTime && codeForces.endContest(contestTime)){
                         utils.debug("结束比赛成功");
                         break;
                     }
+
+                    // 其实有另一种实现方式就是进行分钟化计算
+                    if (contestTime <= checkTime){
+                        codeForces.sendContestWillBegin(contestTime);
+                        break;
+                    }
+
                 }
 
                 // 每小时执行一次的逻辑，包括在整点时更新比赛信息和排名

@@ -66,6 +66,7 @@ public class GroupMsg extends SimpleListenerHost {
                 return;
             case "reload":
                 ACMReminder.INSTANCE.reload();
+                group.sendMessage("ACMReminder 重载成功");
                 return;
         }
 

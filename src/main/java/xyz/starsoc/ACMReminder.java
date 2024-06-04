@@ -14,7 +14,7 @@ public final class ACMReminder extends JavaPlugin{
     public static final ACMReminder INSTANCE=new ACMReminder();
 
     private ACMReminder(){
-        super(new JvmPluginDescriptionBuilder("xyz.starsoc.acmreminder","0.1.0")
+        super(new JvmPluginDescriptionBuilder("xyz.starsoc.acmreminder","0.1.1")
                 .name("ACMReminder")
                 .author("Clusters_stars")
                 .build());
