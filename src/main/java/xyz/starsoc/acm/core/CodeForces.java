@@ -27,7 +27,7 @@ public class CodeForces {
 
     public static final Set<Group> groupList = new HashSet<>();
 
-    private Logger logger = LoggerFactory.getLogger("CodeForces");
+    private final Logger logger = LoggerFactory.getLogger("CodeForces");
 
     private static final Utils utils = Utils.INSTANCE;
 
@@ -53,7 +53,7 @@ public class CodeForces {
         // 将JSON数据解析成CFRespond<CFContests>对象
         CFRespond<CFContests> respond = utils.gson.fromJson(json, type);
         // 如果响应状态不为"OK"，则不进行任何操作
-        if (!respond.getStatus().equals("OK")) return;
+        if (respond != null && !respond.getStatus().equals("OK")) return;
         // 获取竞赛列表
         List<CFContests> result = respond.getResult();
         // 遍历竞赛列表，只处理还未开始的竞赛
@@ -244,6 +244,14 @@ public class CodeForces {
         }
     }
 
+    public void sendAllGroupRank(StringBuilder message){
+
+        for (Group group : groupList) {
+            message.append(getRank(group.getId()));
+            group.sendMessage(message.toString());
+        }
+    }
+
 
 
     /**
@@ -382,6 +390,9 @@ public class CodeForces {
             // 更新所有用户的评级
             updateAllUserRating();
             logger.info("比赛 " + contests.getName() + " 已结束");
+            StringBuilder message = new StringBuilder("比赛 " + contests.getName() + " 已结束 \n");
+            sendAllGroupRank(message);
+//            getUserRating()
             return true;
         }
         // 如果当前时间未超过比赛结束时间，则不进行处理，返回false

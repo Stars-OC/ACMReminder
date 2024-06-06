@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CodeForcesThread {
 
-    private Logger logger = LoggerFactory.getLogger("CodeForcesThread");
+    private final Logger logger = LoggerFactory.getLogger("CodeForcesThread");
 
     private static final Config config = Config.INSTANCE;
 
@@ -31,6 +31,7 @@ public class CodeForcesThread {
     private int times = -1;
 
     private boolean init = true;
+
     /**
      * 运行该任务，定期执行一系列操作。
      * 该任务首先检查是否需要初始化，如果需要则进行初始化，并确保只初始化一次。
