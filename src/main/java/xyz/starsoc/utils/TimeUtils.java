@@ -63,16 +63,20 @@ public class TimeUtils {
      * @return 如果给定的时间戳表示的是午夜，则返回true；否则返回false。
      */
     public boolean isMidnight(long timestamp) {
+        return checkMoment(timestamp,0,0);
+    }
+
+    public boolean checkMoment(long timestamp,int hour,int minute) {
         // 获取当前时间的日历实例，并将时间戳设置到该日历实例上
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp);
 
         // 获取小时、分钟、秒和毫秒
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
+        int nowHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = calendar.get(Calendar.MINUTE);
 
         // 检查是否为凌晨（00:00）
-        return (hour == 0 && minute == 0);
+        return (nowHour == hour && nowMinute == minute);
     }
 
 }

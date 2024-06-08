@@ -74,7 +74,7 @@ public class CodeForcesThread {
                 for (long contestTime : CONTESTS_TIME.keySet()){
 
                     // 这里要确保时间的不冲突 或者可以使用if else
-                    if (contestTime >= dateTime && codeForces.endContest(contestTime)){
+                    if (contestTime <= dateTime && codeForces.endContest(contestTime)){
                         utils.debug("结束比赛成功");
                         break;
                     }
@@ -89,8 +89,8 @@ public class CodeForcesThread {
 
                 // 每小时执行一次的逻辑，包括在整点时更新比赛信息和排名
                 if (times%60 == 0){
-                    // 判断是不是凌晨 如果是就更新比赛信息与排名信息
-                    if (utils.time.isMidnight(dateTime*1000)){
+                    // 判断是不是每天早上八点 如果是就更新比赛信息与排名信息
+                    if (utils.time.checkMoment(dateTime*1000,8,0)){
                         codeForces.updateContests();
                         codeForces.updateAllUserRating();
                         logger.info("更新比赛信息与排名信息成功");
