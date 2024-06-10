@@ -383,20 +383,31 @@ public class CodeForces {
         long endTime = contests.getDurationSeconds() + contestTime;
         if (nowTime > endTime){
             // 如果当前时间大于比赛结束时间，则认为比赛已经结束，进行后续处理
+            endContestHandel(contests);
             // 移除指定时间的比赛
             CONTESTS_TIME.remove(contestTime);
             // 更新比赛列表
-            updateContests();
-            // 更新所有用户的评级
-            updateAllUserRating();
-            logger.info("比赛 " + contests.getName() + " 已结束");
-            StringBuilder message = new StringBuilder("比赛 " + contests.getName() + " 已结束 \n");
-            sendAllGroupRank(message);
 //            getUserRating()
             return true;
         }
         // 如果当前时间未超过比赛结束时间，则不进行处理，返回false
         return false;
+    }
+
+    private void endContestHandel(CFContests contests){
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                updateContests();
+                updateAllUserRating();
+                logger.info("比赛 " + contests.getName() + " 已结束");
+                StringBuilder message = new StringBuilder("比赛 " + contests.getName() + " 已结束 \n");
+                sendAllGroupRank(message);
+                timer.cancel(); //执行完毕停止定时器
+            }
+            // 5秒后执行结束相关信息
+        }, 5000);
     }
 
 }
