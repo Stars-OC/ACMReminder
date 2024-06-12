@@ -244,11 +244,12 @@ public class CodeForces {
         }
     }
 
-    public void sendAllGroupRank(StringBuffer message){
+    public void sendAllGroupRank(StringBuilder message){
 
         for (Group group : groupList) {
-            message.append(getRank(group.getId()));
-            group.sendMessage(message.toString());
+            String newMessage = message.toString();
+            newMessage += getRank(group.getId());
+            group.sendMessage(newMessage);
         }
     }
 
@@ -402,7 +403,7 @@ public class CodeForces {
                 updateContests();
                 updateAllUserRating();
                 logger.info("比赛 " + contests.getName() + " 已结束");
-                StringBuffer message = new StringBuffer("比赛 " + contests.getName() + " 已结束 \n");
+                StringBuilder message = new StringBuilder("比赛 " + contests.getName() + " 已结束 \n");
                 sendAllGroupRank(message);
                 timer.cancel(); //执行完毕停止定时器
             }
